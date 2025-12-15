@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const { Op } = require('sequelize');
 
-// Obtener todos los usuarios (solo administradores)
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
@@ -14,7 +13,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// Obtener un usuario por ID
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -32,12 +30,10 @@ const getUserById = async (req, res) => {
   }
 };
 
-// Crear un nuevo usuario (registro público o por administrador)
 const createUser = async (req, res) => {
   try {
     const { email, name, password, role } = req.body;
 
-    // Validaciones básicas
     if (!email || !name || !password) {
       return res.status(400).json({
         success: false,
@@ -45,7 +41,6 @@ const createUser = async (req, res) => {
       });
     }
 
-    // Verificar si el email ya existe
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({
@@ -54,10 +49,8 @@ const createUser = async (req, res) => {
       });
     }
 
-    // Si viene desde el frontend (registro público), solo puede crear participantes
-    // Si viene desde un administrador, puede asignar cualquier rol
-    const userRole = req.user && req.user.role === 'administrador' 
-      ? (role || 'participante') 
+    const userRole = req.user && req.user.role === 'administrador'
+      ? (role || 'participante')
       : 'participante';
 
     const user = await User.create({
@@ -78,7 +71,6 @@ const createUser = async (req, res) => {
   }
 };
 
-// Actualizar un usuario (solo administradores)
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -89,7 +81,6 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
     }
 
-    // Actualizar campos permitidos
     if (email) user.email = email;
     if (name) user.name = name;
     if (role) user.role = role;
@@ -107,7 +98,6 @@ const updateUser = async (req, res) => {
   }
 };
 
-// Cambiar contraseña de un usuario (solo administradores)
 const changePassword = async (req, res) => {
   try {
     const { id } = req.params;
@@ -137,7 +127,6 @@ const changePassword = async (req, res) => {
   }
 };
 
-// Eliminar un usuario (solo administradores)
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;

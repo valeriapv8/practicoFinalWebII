@@ -1,20 +1,18 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-// Generar token JWT
 const generateToken = (user) => {
   return jwt.sign(
-    { 
-      id: user.id, 
-      email: user.email, 
-      role: user.role 
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role
     },
     process.env.JWT_SECRET || 'your-secret-key-change-in-production',
     { expiresIn: '7d' }
   );
 };
 
-// Login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -26,7 +24,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Buscar usuario
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({
@@ -35,7 +32,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Verificar si el usuario está activo
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
@@ -43,7 +39,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Verificar contraseña
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -52,7 +47,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Generar token
     const token = generateToken(user);
 
     res.json({
@@ -68,7 +62,6 @@ const login = async (req, res) => {
   }
 };
 
-// Obtener usuario actual (verificar token)
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {

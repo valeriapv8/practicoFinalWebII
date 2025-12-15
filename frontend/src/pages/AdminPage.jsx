@@ -11,14 +11,12 @@ const AdminPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Estados para modales
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  // Estados para formularios
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -63,7 +61,6 @@ const AdminPage = () => {
     return roles[role] || role;
   };
 
-  // Abrir modal de crear
   const openCreateModal = () => {
     setFormData({
       name: "",
@@ -77,7 +74,6 @@ const AdminPage = () => {
     setShowCreateModal(true);
   };
 
-  // Abrir modal de editar
   const openEditModal = (userToEdit) => {
     setSelectedUser(userToEdit);
     setFormData({
@@ -91,14 +87,12 @@ const AdminPage = () => {
     setShowEditModal(true);
   };
 
-  // Abrir modal de eliminar
   const openDeleteModal = (userToDelete) => {
     setSelectedUser(userToDelete);
     setError("");
     setShowDeleteModal(true);
   };
 
-  // Abrir modal de cambiar contraseña
   const openPasswordModal = (userToEdit) => {
     setSelectedUser(userToEdit);
     setNewPassword("");
@@ -107,7 +101,6 @@ const AdminPage = () => {
     setShowPasswordModal(true);
   };
 
-  // Crear usuario
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -124,7 +117,6 @@ const AdminPage = () => {
     }
   };
 
-  // Editar usuario
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
@@ -146,7 +138,6 @@ const AdminPage = () => {
     }
   };
 
-  // Eliminar usuario
   const handleDelete = async () => {
     try {
       setError("");
@@ -162,7 +153,6 @@ const AdminPage = () => {
     }
   };
 
-  // Cambiar contraseña
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (newPassword.length < 6) {

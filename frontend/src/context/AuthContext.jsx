@@ -1,12 +1,12 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import { authService } from '../services/authService';
+import { createContext, useState, useEffect, useContext } from "react";
+import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth debe usarse dentro de AuthProvider');
+    throw new Error("useAuth debe usarse dentro de AuthProvider");
   }
   return context;
 };
@@ -18,25 +18,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
+      const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
 
       if (token && savedUser) {
         try {
           const userData = JSON.parse(savedUser);
           setUser(userData);
           setIsAuthenticated(true);
-          
-          // Verificar token con el servidor
+
           const response = await authService.getCurrentUser();
           if (response.success) {
             setUser(response.data);
-            localStorage.setItem('user', JSON.stringify(response.data));
+            localStorage.setItem("user", JSON.stringify(response.data));
           } else {
             logout();
           }
         } catch (error) {
-          console.error('Error al verificar autenticación:', error);
+          console.error("Error al verificar autenticación:", error);
           logout();
         }
       }
@@ -51,8 +50,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(email, password);
       if (response.success) {
         const { token, user: userData } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
         setIsAuthenticated(true);
         return { success: true };
@@ -61,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Error al iniciar sesión'
+        message: error.response?.data?.message || "Error al iniciar sesión",
       };
     }
   };
@@ -70,20 +69,20 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(name, email, password);
       if (response.success) {
-        return { success: true, message: 'Registro exitoso' };
+        return { success: true, message: "Registro exitoso" };
       }
       return { success: false, message: response.message };
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Error al registrarse'
+        message: error.response?.data?.message || "Error al registrarse",
       };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -106,11 +105,10 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         hasRole,
-        hasAnyRole
+        hasAnyRole,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-

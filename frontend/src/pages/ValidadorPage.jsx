@@ -30,7 +30,6 @@ const ValidadorPage = () => {
     await validateWithToken(token.trim());
   };
 
-  // Función auxiliar para validar con un token específico
   const validateWithToken = async (tokenToValidate) => {
     if (!tokenToValidate || !tokenToValidate.trim()) {
       setError("Por favor ingrese un token válido");
@@ -52,12 +51,11 @@ const ValidadorPage = () => {
 
       if (response.success) {
         setValidationResult(response.data);
-        // Limpiar el input después de una validación exitosa
         if (response.data.valid) {
           setTimeout(() => {
             setToken("");
             setValidationResult(null);
-          }, 5000); // Limpiar después de 5 segundos
+          }, 5000);
         }
       } else {
         setError(response.message || "Error al validar entrada");
@@ -85,13 +83,11 @@ const ValidadorPage = () => {
     setToken("");
   };
 
-  // Iniciar escaneo con cámara
   const startCameraScanning = async () => {
     try {
       setError("");
-      setIsCameraOpen(true); // Primero establecer true para que se renderice el div
+      setIsCameraOpen(true);
 
-      // Esperar a que React renderice el elemento
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       const readerElement = document.getElementById("qr-reader");
@@ -112,10 +108,8 @@ const ValidadorPage = () => {
           qrbox: { width: 250, height: 250 },
         },
         (decodedText) => {
-          // QR escaneado exitosamente
           console.log("QR escaneado:", decodedText);
 
-          // Detener la cámara primero
           if (html5QrCodeRef.current) {
             html5QrCodeRef.current
               .stop()
@@ -127,7 +121,6 @@ const ValidadorPage = () => {
                 setIsCameraOpen(false);
                 setToken(decodedText);
                 setScanMode("manual");
-                // Validar automáticamente
                 validateWithToken(decodedText);
               })
               .catch((err) => {
@@ -144,12 +137,10 @@ const ValidadorPage = () => {
             validateWithToken(decodedText);
           }
         },
-        () => {
-          // Error de escaneo (normal mientras escanea)
-        }
+        () => {}
       );
 
-      setScanMode("camera"); // Cambiar el modo después de iniciar
+      setScanMode("camera");
     } catch (err) {
       console.error("Error iniciando cámara:", err);
       setError("No se pudo acceder a la cámara. Verifique los permisos.");
@@ -158,7 +149,6 @@ const ValidadorPage = () => {
     }
   };
 
-  // Detener escaneo con cámara
   const stopCameraScanning = () => {
     if (html5QrCodeRef.current && isCameraOpen) {
       try {
@@ -187,7 +177,6 @@ const ValidadorPage = () => {
     }
   };
 
-  // Limpiar cámara al desmontar componente
   useEffect(() => {
     return () => {
       if (html5QrCodeRef.current && isCameraOpen) {
@@ -196,7 +185,6 @@ const ValidadorPage = () => {
     };
   }, [isCameraOpen]);
 
-  // Manejar subida de archivo QR
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -226,7 +214,6 @@ const ValidadorPage = () => {
           setToken(code.data);
           setScanMode("manual");
           setLoading(false);
-          // Validar automáticamente con el token decodificado
           console.log("QR decodificado de imagen:", code.data);
           validateWithToken(code.data);
         } else {
@@ -240,7 +227,6 @@ const ValidadorPage = () => {
     };
     reader.readAsDataURL(file);
 
-    // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
     event.target.value = "";
   };
 
@@ -287,7 +273,6 @@ const ValidadorPage = () => {
                   </div>
                 )}
 
-                {/* Selector de método de escaneo */}
                 <div className="mb-4">
                   <label className="form-label fw-bold">
                     Método de Validación:
@@ -351,7 +336,6 @@ const ValidadorPage = () => {
                   />
                 </div>
 
-                {/* Vista de cámara */}
                 {isCameraOpen && (
                   <div className="mb-3">
                     <div id="qr-reader" style={{ width: "100%" }}></div>
@@ -361,7 +345,6 @@ const ValidadorPage = () => {
                   </div>
                 )}
 
-                {/* Input manual */}
                 {scanMode === "manual" && !isCameraOpen && (
                   <div className="mb-3">
                     <label htmlFor="token" className="form-label">
@@ -419,7 +402,6 @@ const ValidadorPage = () => {
               </div>
             </div>
 
-            {/* Resultado de Validación */}
             {validationResult && (
               <div className="card shadow mt-4">
                 <div className="card-body">
@@ -524,7 +506,6 @@ const ValidadorPage = () => {
               </div>
             )}
 
-            {/* Información adicional */}
             <div className="card shadow mt-4">
               <div className="card-header bg-light">
                 <h6 className="mb-0">Instrucciones</h6>

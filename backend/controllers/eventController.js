@@ -1,7 +1,6 @@
 const { Event, Inscripcion, User } = require('../models');
 const { Op } = require('sequelize');
 
-// Obtener todos los eventos públicos (próximos)
 const getPublicEvents = async (req, res) => {
   try {
     const now = new Date();
@@ -28,7 +27,6 @@ const getPublicEvents = async (req, res) => {
       order: [['date', 'ASC']]
     });
 
-    // Agregar contador de inscripciones aceptadas
     const eventsWithCount = events.map(event => {
       const eventData = event.toJSON();
       eventData.inscripcionesCount = eventData.inscripciones.filter(i => i.paymentStatus === 'pagado').length;
@@ -42,7 +40,6 @@ const getPublicEvents = async (req, res) => {
   }
 };
 
-// Obtener un evento por ID (público)
 const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,7 +61,6 @@ const getEventById = async (req, res) => {
   }
 };
 
-// Obtener eventos del organizador actual
 const getMyEvents = async (req, res) => {
   try {
     const events = await Event.findAll({
@@ -79,7 +75,6 @@ const getMyEvents = async (req, res) => {
       order: [['date', 'DESC']]
     });
 
-    // Agregar contador de inscripciones aceptadas
     const eventsWithCount = events.map(event => {
       const eventData = event.toJSON();
       eventData.inscripcionesCount = eventData.inscripciones.filter(i => i.paymentStatus === 'pagado').length;
@@ -93,7 +88,6 @@ const getMyEvents = async (req, res) => {
   }
 };
 
-// Crear evento (solo organizador)
 const createEvent = async (req, res) => {
   try {
     const {
@@ -139,7 +133,6 @@ const createEvent = async (req, res) => {
   }
 };
 
-// Actualizar evento (solo organizador)
 const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -149,7 +142,6 @@ const updateEvent = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Evento no encontrado' });
     }
 
-    // Verificar que el evento pertenece al organizador
     if (event.organizadorId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -170,7 +162,6 @@ const updateEvent = async (req, res) => {
       isActive
     } = req.body;
 
-    // Actualizar campos
     if (title) event.title = title;
     if (description) event.description = description;
     if (date) event.date = date;
@@ -194,7 +185,6 @@ const updateEvent = async (req, res) => {
   }
 };
 
-// Eliminar evento (solo organizador)
 const deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -204,7 +194,6 @@ const deleteEvent = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Evento no encontrado' });
     }
 
-    // Verificar que el evento pertenece al organizador
     if (event.organizadorId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -223,7 +212,6 @@ const deleteEvent = async (req, res) => {
   }
 };
 
-// Obtener estadísticas del evento (solo organizador)
 const getEventStats = async (req, res) => {
   try {
     const { id } = req.params;
@@ -238,7 +226,6 @@ const getEventStats = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Evento no encontrado' });
     }
 
-    // Verificar que el evento pertenece al organizador
     if (event.organizadorId !== req.user.id) {
       return res.status(403).json({
         success: false,

@@ -10,7 +10,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Estados para modal de entrada
   const [showEntradaModal, setShowEntradaModal] = useState(false);
   const [selectedEntrada, setSelectedEntrada] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
@@ -91,7 +90,6 @@ const Profile = () => {
     setSelectedEntrada(inscripcion);
     setShowEntradaModal(true);
 
-    // Generar QR code si el pago está aceptado
     if (inscripcion.paymentStatus === "pagado" && inscripcion.token) {
       try {
         const url = await QRCode.toDataURL(inscripcion.token, {
@@ -152,7 +150,6 @@ const Profile = () => {
 
       <div className="container mt-4">
         <div className="row">
-          {/* Información del Usuario */}
           <div className="col-md-4 mb-4">
             <div className="card">
               <div className="card-header bg-primary text-white">
@@ -172,7 +169,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Mis Inscripciones */}
           <div className="col-md-8">
             <div className="card">
               <div className="card-header bg-primary text-white">
@@ -270,7 +266,6 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Modal de Entrada */}
       <div
         className={`modal fade ${showEntradaModal ? "show" : ""}`}
         style={{ display: showEntradaModal ? "block" : "none" }}
@@ -311,7 +306,6 @@ const Profile = () => {
                 )}
 
                 <div className="row">
-                  {/* Información del Usuario */}
                   <div className="col-md-6 mb-4">
                     <h6 className="border-bottom pb-2">Datos del Comprador</h6>
                     <p className="mb-1">
@@ -322,7 +316,6 @@ const Profile = () => {
                     </p>
                   </div>
 
-                  {/* Información del Evento */}
                   <div className="col-md-6 mb-4">
                     <h6 className="border-bottom pb-2">Datos del Evento</h6>
                     <p className="mb-1">
@@ -345,7 +338,6 @@ const Profile = () => {
 
                 {selectedEntrada.paymentStatus === "pagado" && (
                   <div className="row">
-                    {/* Código de Entrada */}
                     <div className="col-md-6 mb-4">
                       <h6 className="border-bottom pb-2">Código de Entrada</h6>
                       <div className="alert alert-info text-center">
@@ -361,7 +353,6 @@ const Profile = () => {
                       </div>
                     </div>
 
-                    {/* QR Code */}
                     <div className="col-md-6 mb-4">
                       <h6 className="border-bottom pb-2">Código QR</h6>
                       <div

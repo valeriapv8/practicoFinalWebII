@@ -9,7 +9,6 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// --- Configuración de Iconos (No tocar) ---
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -20,13 +19,10 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// --- Componente 1: El Vigilante del Tamaño (LA SOLUCIÓN) ---
 const MapResizer = () => {
   const map = useMap();
 
   useEffect(() => {
-    // Este observador detecta cuando el div del mapa cambia de tamaño
-    // (por ejemplo, cuando el modal pasa de display:none a block)
     const observer = new ResizeObserver(() => {
       map.invalidateSize();
     });
@@ -41,7 +37,6 @@ const MapResizer = () => {
   return null;
 };
 
-// --- Componente 2: Manejador de Clics ---
 function LocationMarker({ position, onPositionChange }) {
   const map = useMap();
 
@@ -60,11 +55,9 @@ function LocationMarker({ position, onPositionChange }) {
   return position ? <Marker position={position} /> : null;
 }
 
-// --- Componente Principal ---
 const MapPicker = ({ latitude, longitude, onLocationChange }) => {
-  const defaultCenter = [-17.7573663, -63.3419807]; // Santa Cruz
+  const defaultCenter = [-17.7573663, -63.3419807];
 
-  // Convertimos props a array
   const position =
     latitude && longitude
       ? [parseFloat(latitude), parseFloat(longitude)]
@@ -78,11 +71,11 @@ const MapPicker = ({ latitude, longitude, onLocationChange }) => {
           width: "100%",
           borderRadius: "8px",
           border: "2px solid #ddd",
-          overflow: "hidden", // Importante para bordes redondeados
+          overflow: "hidden",
         }}
       >
         <MapContainer
-          center={defaultCenter} // Usamos centro por defecto inicial
+          center={defaultCenter}
           zoom={13}
           style={{ height: "100%", width: "100%" }}
         >
@@ -91,7 +84,6 @@ const MapPicker = ({ latitude, longitude, onLocationChange }) => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* Aquí insertamos el vigilante que arregla el gris */}
           <MapResizer />
 
           <LocationMarker
@@ -118,8 +110,6 @@ const MapPicker = ({ latitude, longitude, onLocationChange }) => {
   );
 };
 
-// --- Optimización de Rendimiento (React.memo) ---
-// Esto evita que el mapa se congele cuando escribes en otros inputs
 export default memo(MapPicker, (prevProps, nextProps) => {
   return (
     prevProps.latitude === nextProps.latitude &&

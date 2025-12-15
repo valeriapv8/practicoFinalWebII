@@ -15,24 +15,21 @@ const OrganizadorPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Estados para modales
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showInscripcionesModal, setShowInscripcionesModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Estados para inscripciones
   const [inscripciones, setInscripciones] = useState([]);
   const [loadingInscripciones, setLoadingInscripciones] = useState(false);
-  const [filterPaymentStatus, setFilterPaymentStatus] = useState("all"); // all, pendiente, pagado, rechazado
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState("all");
   const [selectedInscripcion, setSelectedInscripcion] = useState(null);
   const [showComprobanteModal, setShowComprobanteModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDeleteInscripcionModal, setShowDeleteInscripcionModal] =
     useState(false);
 
-  // Estados para formularios
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -71,7 +68,6 @@ const OrganizadorPage = () => {
     navigate("/");
   };
 
-  // Abrir modal de crear
   const openCreateModal = () => {
     setFormData({
       title: "",
@@ -90,7 +86,6 @@ const OrganizadorPage = () => {
     setShowCreateModal(true);
   };
 
-  // Abrir modal de editar
   const openEditModal = (event) => {
     setSelectedEvent(event);
     const eventDate = new Date(event.date);
@@ -111,14 +106,12 @@ const OrganizadorPage = () => {
     setShowEditModal(true);
   };
 
-  // Abrir modal de eliminar
   const openDeleteModal = (event) => {
     setSelectedEvent(event);
     setError("");
     setShowDeleteModal(true);
   };
 
-  // Abrir modal de inscripciones
   const openInscripcionesModal = async (event) => {
     setSelectedEvent(event);
     setFilterPaymentStatus("all");
@@ -126,7 +119,6 @@ const OrganizadorPage = () => {
     await fetchInscripciones(event.id);
   };
 
-  // Obtener inscripciones de un evento
   const fetchInscripciones = async (eventId) => {
     try {
       setLoadingInscripciones(true);
@@ -142,13 +134,11 @@ const OrganizadorPage = () => {
     }
   };
 
-  // Ver comprobante de pago
   const handleVerComprobante = (inscripcion) => {
     setSelectedInscripcion(inscripcion);
     setShowComprobanteModal(true);
   };
 
-  // Validar pago (aceptar o rechazar)
   const handleValidatePayment = async (inscripcionId, action) => {
     try {
       const response = await inscripcionService.validatePayment(
@@ -169,7 +159,6 @@ const OrganizadorPage = () => {
     }
   };
 
-  // Filtrar inscripciones por estado de pago
   const getFilteredInscripciones = () => {
     if (filterPaymentStatus === "all") {
       return inscripciones;
@@ -177,7 +166,6 @@ const OrganizadorPage = () => {
     return inscripciones.filter((i) => i.paymentStatus === filterPaymentStatus);
   };
 
-  // Eliminar inscripción
   const handleDeleteInscripcion = async () => {
     try {
       const response = await inscripcionService.deleteInscripcion(
@@ -197,17 +185,14 @@ const OrganizadorPage = () => {
     }
   };
 
-  // Abrir modal de eliminar inscripción
   const openDeleteInscripcionModal = (inscripcion) => {
     setSelectedInscripcion(inscripcion);
     setShowDeleteInscripcionModal(true);
   };
 
-  // Descargar lista de inscritos
   const handleDownloadList = () => {
     if (!selectedEvent || inscripciones.length === 0) return;
 
-    // Crear CSV
     const headers = [
       "Participante",
       "Email",
@@ -232,7 +217,6 @@ const OrganizadorPage = () => {
       ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
     ].join("\n");
 
-    // Descargar archivo
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -247,14 +231,12 @@ const OrganizadorPage = () => {
     document.body.removeChild(link);
   };
 
-  // Abrir modal de estadísticas
   const openStatsModal = async (event) => {
     setSelectedEvent(event);
     setShowStatsModal(true);
     await fetchInscripciones(event.id);
   };
 
-  // Calcular estadísticas
   const getEventStats = () => {
     if (!selectedEvent || !inscripciones) return null;
 
@@ -288,7 +270,6 @@ const OrganizadorPage = () => {
     };
   };
 
-  // Manejar cambios de ubicación desde el mapa
   const handleLocationChange = useCallback((lat, lng) => {
     setFormData((prev) => ({
       ...prev,
@@ -297,7 +278,6 @@ const OrganizadorPage = () => {
     }));
   }, []);
 
-  // Crear evento
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -327,7 +307,6 @@ const OrganizadorPage = () => {
     }
   };
 
-  // Editar evento
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
@@ -360,7 +339,6 @@ const OrganizadorPage = () => {
     }
   };
 
-  // Eliminar evento
   const handleDelete = async () => {
     try {
       setError("");
@@ -523,7 +501,6 @@ const OrganizadorPage = () => {
         )}
       </div>
 
-      {/* Modal Crear Evento */}
       <div
         className={`modal fade ${showCreateModal ? "show" : ""}`}
         style={{ display: showCreateModal ? "block" : "none" }}
@@ -676,7 +653,6 @@ const OrganizadorPage = () => {
       </div>
       {showCreateModal && <div className="modal-backdrop fade show"></div>}
 
-      {/* Modal Editar Evento */}
       <div
         className={`modal fade ${showEditModal ? "show" : ""}`}
         style={{ display: showEditModal ? "block" : "none" }}
@@ -831,7 +807,6 @@ const OrganizadorPage = () => {
       </div>
       {showEditModal && <div className="modal-backdrop fade show"></div>}
 
-      {/* Modal Eliminar Evento */}
       <div
         className={`modal fade ${showDeleteModal ? "show" : ""}`}
         style={{ display: showDeleteModal ? "block" : "none" }}
@@ -876,7 +851,6 @@ const OrganizadorPage = () => {
       </div>
       {showDeleteModal && <div className="modal-backdrop fade show"></div>}
 
-      {/* Modal Inscripciones */}
       <div
         className={`modal fade ${showInscripcionesModal ? "show" : ""}`}
         style={{ display: showInscripcionesModal ? "block" : "none" }}
@@ -895,7 +869,6 @@ const OrganizadorPage = () => {
               ></button>
             </div>
             <div className="modal-body">
-              {/* Filtros */}
               <div className="mb-3">
                 <div className="btn-group" role="group">
                   <button
@@ -1131,7 +1104,6 @@ const OrganizadorPage = () => {
         <div className="modal-backdrop fade show"></div>
       )}
 
-      {/* Modal Ver Comprobante */}
       <div
         className={`modal fade ${showComprobanteModal ? "show" : ""}`}
         style={{ display: showComprobanteModal ? "block" : "none" }}
@@ -1226,7 +1198,6 @@ const OrganizadorPage = () => {
       </div>
       {showComprobanteModal && <div className="modal-backdrop fade show"></div>}
 
-      {/* Modal Eliminar Inscripción */}
       <div
         className={`modal fade ${showDeleteInscripcionModal ? "show" : ""}`}
         style={{ display: showDeleteInscripcionModal ? "block" : "none" }}
@@ -1273,7 +1244,6 @@ const OrganizadorPage = () => {
         <div className="modal-backdrop fade show"></div>
       )}
 
-      {/* Modal Estadísticas */}
       <div
         className={`modal fade ${showStatsModal ? "show" : ""}`}
         style={{ display: showStatsModal ? "block" : "none" }}

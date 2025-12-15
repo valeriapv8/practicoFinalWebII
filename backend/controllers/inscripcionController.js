@@ -2,7 +2,6 @@ const { Inscripcion, Event, User } = require('../models');
 const { Op } = require('sequelize');
 const crypto = require('crypto');
 
-// Inscribirse a un evento
 const createInscripcion = async (req, res) => {
   try {
     const { eventId } = req.body;
@@ -14,7 +13,6 @@ const createInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar que el evento existe
     const event = await Event.findByPk(eventId);
     if (!event) {
       return res.status(404).json({
@@ -23,7 +21,6 @@ const createInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar que el evento no haya pasado
     if (new Date(event.date) < new Date()) {
       return res.status(400).json({
         success: false,
@@ -31,7 +28,6 @@ const createInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar que no esté ya inscrito
     const existingInscripcion = await Inscripcion.findOne({
       where: {
         userId: req.user.id,
@@ -46,7 +42,6 @@ const createInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar capacidad - solo contar inscripciones aceptadas
     const inscripcionesCount = await Inscripcion.count({
       where: {
         eventId: eventId,
@@ -61,24 +56,19 @@ const createInscripcion = async (req, res) => {
       });
     }
 
-    // Generar token y código únicos
     const token = crypto.randomBytes(32).toString('hex');
     const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const codigo = `EVT-${randomCode}`;
 
-    // Crear inscripción
-    // Si el evento tiene precio, el estado de pago es pendiente hasta que se valide el comprobante
-    // Si es gratuito, se marca como pagado automáticamente
     const inscripcion = await Inscripcion.create({
       userId: req.user.id,
       eventId: eventId,
       token: token,
       codigo: codigo,
       paymentStatus: event.price > 0 ? 'pendiente' : 'pagado',
-      estado: 'disponible' // Estado inicial: disponible para usar
+      estado: 'disponible'
     });
 
-    // Cargar relaciones
     await inscripcion.reload({
       include: [
         { model: Event, as: 'event' },
@@ -100,7 +90,6 @@ const createInscripcion = async (req, res) => {
   }
 };
 
-// Obtener mis inscripciones
 const getMyInscripciones = async (req, res) => {
   try {
     const inscripciones = await Inscripcion.findAll({
@@ -119,7 +108,6 @@ const getMyInscripciones = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    // Asegurar que todas las inscripciones tengan estado
     inscripciones.forEach(inscripcion => {
       if (!inscripcion.estado) {
         inscripcion.estado = 'disponible';
@@ -136,7 +124,6 @@ const getMyInscripciones = async (req, res) => {
   }
 };
 
-// Obtener inscripción por ID (con token para QR)
 const getInscripcionById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -154,7 +141,6 @@ const getInscripcionById = async (req, res) => {
       });
     }
 
-    // Verificar que pertenece al usuario
     if (inscripcion.userId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -168,7 +154,6 @@ const getInscripcionById = async (req, res) => {
   }
 };
 
-// Cancelar inscripción
 const cancelInscripcion = async (req, res) => {
   try {
     const { id } = req.params;
@@ -186,7 +171,6 @@ const cancelInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar que pertenece al usuario
     if (inscripcion.userId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -194,7 +178,6 @@ const cancelInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar que el evento no haya pasado
     if (new Date(inscripcion.event.date) < new Date()) {
       return res.status(400).json({
         success: false,
@@ -202,7 +185,6 @@ const cancelInscripcion = async (req, res) => {
       });
     }
 
-    // Verificar que no haya pagado o que el pago no haya sido aceptado
     if (inscripcion.paymentStatus === 'pagado') {
       return res.status(400).json({
         success: false,
@@ -221,7 +203,6 @@ const cancelInscripcion = async (req, res) => {
   }
 };
 
-// Subir comprobante de pago
 const uploadPaymentProof = async (req, res) => {
   try {
     const { id } = req.params;
@@ -243,7 +224,6 @@ const uploadPaymentProof = async (req, res) => {
       });
     }
 
-    // Verificar que pertenece al usuario
     if (inscripcion.userId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -265,7 +245,6 @@ const uploadPaymentProof = async (req, res) => {
   }
 };
 
-// Validar entrada por token (solo validador)
 const validateEntry = async (req, res) => {
   try {
     const { token } = req.body;
@@ -297,7 +276,6 @@ const validateEntry = async (req, res) => {
       });
     }
 
-    // Verificar que el evento sea el del día
     const eventDate = new Date(inscripcion.event.date);
     const today = new Date();
     if (eventDate.toDateString() !== today.toDateString()) {
@@ -308,7 +286,6 @@ const validateEntry = async (req, res) => {
       });
     }
 
-    // Verificar estado de pago - debe estar pagado para poder usar la entrada
     if (inscripcion.paymentStatus !== 'pagado') {
       return res.json({
         success: true,
@@ -324,7 +301,6 @@ const validateEntry = async (req, res) => {
       });
     }
 
-    // Verificar si la entrada ya fue usada
     if (inscripcion.estado === 'usado' || inscripcion.estado === 'gastado') {
       return res.json({
         success: true,
@@ -341,7 +317,6 @@ const validateEntry = async (req, res) => {
       });
     }
 
-    // Marcar entrada como usada y registrar ingreso
     inscripcion.estado = 'usado';
     inscripcion.hasEntered = true;
     inscripcion.entryDate = new Date();
@@ -364,7 +339,6 @@ const validateEntry = async (req, res) => {
   }
 };
 
-// Obtener inscripciones de un evento (solo organizador)
 const getEventInscripciones = async (req, res) => {
   try {
     const { eventId } = req.params;
@@ -377,7 +351,6 @@ const getEventInscripciones = async (req, res) => {
       });
     }
 
-    // Verificar que el evento pertenece al organizador
     if (event.organizadorId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -401,11 +374,10 @@ const getEventInscripciones = async (req, res) => {
   }
 };
 
-// Validar/rechazar comprobante de pago (solo organizador)
 const validatePayment = async (req, res) => {
   try {
     const { id } = req.params;
-    const { action } = req.body; // 'accept' o 'reject'
+    const { action } = req.body;
 
     if (!action || !['accept', 'reject'].includes(action)) {
       return res.status(400).json({
@@ -428,7 +400,6 @@ const validatePayment = async (req, res) => {
       });
     }
 
-    // Verificar que el evento pertenece al organizador
     if (inscripcion.event.organizadorId !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -437,7 +408,6 @@ const validatePayment = async (req, res) => {
     }
 
     inscripcion.paymentStatus = action === 'accept' ? 'pagado' : 'rechazado';
-    // Si se acepta el pago, asegurar que el estado esté en 'disponible' para poder usar la entrada
     if (action === 'accept' && inscripcion.estado !== 'usado' && inscripcion.estado !== 'gastado') {
       inscripcion.estado = 'disponible';
     }

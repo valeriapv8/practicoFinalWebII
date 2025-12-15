@@ -59,13 +59,11 @@ const User = sequelize.define('User', {
   }
 });
 
-// Método para comparar contraseñas
-User.prototype.comparePassword = async function(candidatePassword) {
+User.prototype.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Método para obtener usuario sin contraseña
-User.prototype.toJSON = function() {
+User.prototype.toJSON = function () {
   const values = { ...this.get() };
   delete values.password;
   return values;

@@ -19,9 +19,7 @@ const Login = () => {
     setLoading(false);
 
     if (result.success) {
-      // Obtener el usuario del localStorage para verificar su rol
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      // Redirigir según el rol del usuario
       switch (userData.role) {
         case "participante":
           navigate("/profile");

@@ -13,14 +13,12 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Estados para modal de inscripción
   const [showInscripcionModal, setShowInscripcionModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [paymentProof, setPaymentProof] = useState(null);
   const [paymentProofPreview, setPaymentProofPreview] = useState(null);
   const [inscripcionLoading, setInscripcionLoading] = useState(false);
 
-  // Estados para modal de entrada
   const [showEntradaModal, setShowEntradaModal] = useState(false);
   const [entradaData, setEntradaData] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
@@ -92,7 +90,6 @@ const Home = () => {
     const file = e.target.files[0];
     if (file) {
       setPaymentProof(file);
-      // Crear preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPaymentProofPreview(reader.result);
@@ -109,14 +106,12 @@ const Home = () => {
     try {
       setInscripcionLoading(true);
 
-      // Si el evento tiene precio, requiere comprobante
       if (selectedEvent.price > 0 && !paymentProof) {
         alert("Debes subir un comprobante de pago para eventos con precio");
         setInscripcionLoading(false);
         return;
       }
 
-      // Crear inscripción
       const inscripcionResponse = await inscripcionService.createInscripcion(
         selectedEvent.id
       );
@@ -129,13 +124,10 @@ const Home = () => {
 
       const inscripcion = inscripcionResponse.data;
 
-      // Si hay comprobante, intentar subirlo (pero no fallar si hay error)
       if (paymentProof && selectedEvent.price > 0) {
         try {
-          // Comprimir imagen antes de convertir a base64
           const compressedImage = await compressImage(paymentProof);
 
-          // Convertir imagen comprimida a base64 para enviar
           const base64Image = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result);
@@ -150,17 +142,14 @@ const Home = () => {
             "Error al subir comprobante, pero la inscripción se creó:",
             uploadError
           );
-          // No lanzar error, la inscripción ya se creó
         }
       }
 
-      // Cerrar modal de inscripción
       setShowInscripcionModal(false);
       setSelectedEvent(null);
       setPaymentProof(null);
       setPaymentProofPreview(null);
 
-      // Si el evento tiene precio y se subió comprobante, solo mostrar confirmación
       if (selectedEvent.price > 0 && paymentProof) {
         alert(
           "¡Inscripción realizada exitosamente!\n\n" +
@@ -169,12 +158,10 @@ const Home = () => {
             "Puedes ver el estado de tu entrada en tu perfil."
         );
       } else {
-        // Si el evento es gratuito, mostrar el modal de entrada
         const fullInscripcion = await inscripcionService.getInscripcionById(
           inscripcion.id
         );
 
-        // Generar QR code
         try {
           const url = await QRCode.toDataURL(fullInscripcion.data.token, {
             width: 300,
@@ -190,14 +177,12 @@ const Home = () => {
           setQrCodeUrl(null);
         }
 
-        // Preparar datos para el modal de entrada
         setEntradaData({
           inscripcion: fullInscripcion.data,
           event: selectedEvent,
           user: user,
         });
 
-        // Abrir modal de entrada
         setShowEntradaModal(true);
       }
 
@@ -214,7 +199,6 @@ const Home = () => {
     }
   };
 
-  // Función para comprimir imagen (más agresiva)
   const compressImage = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -251,7 +235,7 @@ const Home = () => {
               resolve(blob || file);
             },
             "image/jpeg",
-            0.5 // Calidad 50% para reducir más el tamaño
+            0.5
           );
         };
       };
