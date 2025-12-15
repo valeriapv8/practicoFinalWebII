@@ -1,0 +1,20 @@
+/* Reset básico - usando solo Bootstrap para estilos */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilos para Leaflet Map */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.leaflet-tile {
+  filter: none !important;
+}
+
+.leaflet-tile-container {
+  pointer-events: auto;
+}
